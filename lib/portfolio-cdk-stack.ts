@@ -55,6 +55,10 @@ export class PortfolioCdkStack extends cdk.Stack {
       keyName: 'portfolio_machine',
       securityGroup: securityGroup,
       instanceName: 'Portfolio Machine',
+      associatePublicIpAddress: true,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
     });
   }
 }

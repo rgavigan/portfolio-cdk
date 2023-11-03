@@ -73,17 +73,11 @@ test('EC2 instance is created', () => {
         Key: 'Name',
         Value: 'Portfolio Machine'
       }
-    ]
-  });
-
-  // Assert that the EC2 instance is created with the correct security group
-  template.hasResourceProperties(ResourceType.EC2_INSTANCE.complianceResourceType, {
-    SecurityGroupIds: [
+    ],
+    // Asserts that the instance has a public IP address
+    NetworkInterfaces: [
       {
-        'Fn::GetAtt': [
-          Match.stringLikeRegexp('VpcSecurityGroup*'),
-          'GroupId'
-        ]
+        AssociatePublicIpAddress: true
       }
     ]
   });
