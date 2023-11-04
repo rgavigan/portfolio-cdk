@@ -31,8 +31,8 @@ export class Ec2Stack extends cdk.Stack {
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS access from anywhere');
 
     /** 
-     * EC2 Instance - Free Tier (https://aws.amazon.com/free)
-     * Type: t2.micro
+     * EC2 Instance
+     * Type: t3.2xlarge (For initial boot, will downgrade to t3.micro)
      * Storage: 30GiB EBS
      * IOs: 2 million
      * Snapshots: 1GB
@@ -40,7 +40,7 @@ export class Ec2Stack extends cdk.Stack {
      */
     new ec2.Instance(this, 'Portfolio Machine', {
       vpc: this.vpc,
-      instanceType: new ec2.InstanceType('t2.micro'),
+      instanceType: new ec2.InstanceType('t3.2xlarge'),
       machineImage: new ec2.AmazonLinux2023ImageSsmParameter(),
       blockDevices: [
         {

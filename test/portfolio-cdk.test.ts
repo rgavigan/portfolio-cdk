@@ -50,7 +50,7 @@ test('EC2 instance is created', () => {
 
   // Assert that the EC2 instance is created with the correct properties
   template.hasResourceProperties(ResourceType.EC2_INSTANCE.complianceResourceType, {
-    InstanceType: 't2.micro',
+    InstanceType: 't3.2xlarge',
     KeyName: 'portfolio_machine',
     // Asserts that the instance has two block devices with a total of 30GB Storage
     BlockDeviceMappings: [
@@ -79,7 +79,7 @@ test('EC2 instance is created', () => {
 
   // Assert that the EC2 instance is only created with the correct properties
   template.hasResourceProperties(ResourceType.EC2_INSTANCE.complianceResourceType, Match.not({
-    InstanceType: 't3.micro', // Not t2.micro, Match.not() will pass
+    InstanceType: 't3.micro',
     KeyName: 'portfolio_machine',
     // Asserts that the instance has two block devices with a total of 30GB Storage
     BlockDeviceMappings: [

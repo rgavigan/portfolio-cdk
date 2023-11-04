@@ -2,7 +2,7 @@
 
 echo "Update and install required packages (-y to skip prompts)"
 yum update -y
-yum install -y git gcc gcc-c++ boost boost-devel cmake doxygen libpq libpq-devel nginx fcgi libGLEW
+yum install -y git gcc gcc-c++ boost boost-devel cmake doxygen libpq libpq-devel nginx fcgi libGLEW sqlite sqlite-devel
 
 echo "Download Wt"
 cd /home/ec2-user/
@@ -17,15 +17,16 @@ make
 echo "Install Wt"
 make install
 ldconfig
-echo "Set Library Path"
-echo 'export WT_BASE=/usr/local' >> ~/.bashrc
-echo 'export LD_LIBRARY_PATH=/usr/local/lib' >> ~./bashrc
+echo "Set Library Path for EC2 User"
+echo 'export LD_LIBRARY_PATH=/usr/local/lib' >> /home/ec2-user/.bashrc
+echo 'export WT_BASE=/usr/local' >> /home/ec2-user/.bashrc
+source /home/ec2-user/.bashrc
 
 echo "Clone the git repository"
 git clone https://github.com/rgavigan/chess.git /home/ec2-user/chess
 
 echo "Build the application"
-make /home/ec2-user/chess
+make -C /home/ec2-user/chess
 
 echo "Create an Nginx configuration file"
 cat > /etc/nginx/conf.d/chess.conf <<EOL
@@ -34,9 +35,9 @@ server {
 
     location / {
         proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 
     listen 443 ssl;
@@ -46,8 +47,8 @@ server {
 }
 
 server {
-    if ($host = chess.rileygavigan.com) {
-        return 301 https://$host$request_uri;
+    if (\$host = chess.rileygavigan.com) {
+        return 301 https://\$host\$request_uri;
     }
     listen 80;
     server_name chess.rileygavigan.com;
@@ -69,7 +70,9 @@ After=nginx.service
 Wants=nginx.service
 
 [Service]
-ExecStart=/home/ec2-user/chess main_app --docroot . --http-listen 127.0.0.1:8080
+Environment="LD_LIBRARY_PATH=/usr/local/lib"
+Environment="WT_BASE=/usr/local"
+ExecStart=/home/ec2-user/chess/main_app --docroot . --http-listen 127.0.0.1:8080
 Restart=always
 User=ec2-user
 WorkingDirectory=/home/ec2-user/chess
