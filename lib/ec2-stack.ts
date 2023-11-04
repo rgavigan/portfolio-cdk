@@ -32,7 +32,7 @@ export class Ec2Stack extends cdk.Stack {
 
     /** 
      * EC2 Instance
-     * Type: t3.2xlarge (For initial boot, will downgrade to t3.micro)
+     * Type: t3.2xlarge (For initial boot, downgrade t3.micro after boot manually)
      * Storage: 30GiB EBS
      * IOs: 2 million
      * Snapshots: 1GB
