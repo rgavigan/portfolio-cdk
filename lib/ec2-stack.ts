@@ -42,13 +42,7 @@ export class Ec2Stack extends cdk.Stack {
       blockDevices: [
         {
           deviceName: '/dev/xvda', // Root disk
-          volume: ec2.BlockDeviceVolume.ebs(8, {
-            encrypted: true,
-          }),
-        },
-        {
-          deviceName: '/dev/sdb', // Additional EBS disk
-          volume: ec2.BlockDeviceVolume.ebs(22, {
+          volume: ec2.BlockDeviceVolume.ebs(30, {
             encrypted: true,
           }),
         },

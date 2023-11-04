@@ -9,7 +9,7 @@
 ### Building and Deploying
 ```sh
 npm run build && npm run test
-cdk deploy
+cdk deploy --all
 ```
 
 ## Prerequisite - Download AWS CLI

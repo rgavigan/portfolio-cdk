@@ -1,26 +1,33 @@
 #!/bin/bash
 
-# Update and install required packages (-y to skip prompts)
-sudo yum update -y
-sudo yum install -y git gcc gcc-c++ boost boost-devel cmake doxygen libpq libpq-devel nginx fcgi libGLEW
+echo "Update and install required packages (-y to skip prompts)"
+yum update -y
+yum install -y git gcc gcc-c++ boost boost-devel cmake doxygen libpq libpq-devel nginx fcgi libGLEW
 
-# Install Wt
+echo "Download Wt"
+cd /home/ec2-user/
 wget https://github.com/emweb/wt/archive/4.10.1.tar.gz
 tar xvf 4.10.1.tar.gz
 cd wt-4.10.1
 mkdir build
 cd build
 cmake ..
+echo "Make Wt"
 make
+echo "Install Wt"
 make install
+ldconfig
+echo "Set Library Path"
+echo 'export WT_BASE=/usr/local' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/lib' >> ~./bashrc
 
-# Clone the git repository
+echo "Clone the git repository"
 git clone https://github.com/rgavigan/chess.git /home/ec2-user/chess
 
-# Build the application
+echo "Build the application"
 make /home/ec2-user/chess
 
-# Create an Nginx configuration file
+echo "Create an Nginx configuration file"
 cat > /etc/nginx/conf.d/chess.conf <<EOL
 server {
     server_name chess.rileygavigan.com;
@@ -48,14 +55,14 @@ server {
 }
 EOL
 
-# Create a self-signed certificate
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pki/tls/private/chess_key.pem -out /etc/pki/tls/certs/chess_key.pem -subj "/C=US/ST=New York/L=New York/O=Chess/OU=Chess/CN=chess.rileygavigan.com"
+echo "Create a self-signed certificate"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pki/tls/private/chess_key.pem -out /etc/pki/tls/certs/chess_key.pem -subj "/C=US/ST=New York/L=New York/O=Chess/OU=Chess/CN=chess.rileygavigan.com"
 
-# Create Diffie-Hellman parameters
-sudo openssl dhparam -out /etc/pki/tls/ssl-dhparams.pem 2048
+echo "Create Diffie-Hellman parameters"
+openssl dhparam -out /etc/pki/tls/ssl-dhparams.pem 2048
 
-# Create a systemd service file
-cat > etc/systemd/system/chess.rileygavigan.com.service <<EOL
+echo "Create a systemd service file"
+cat > /etc/systemd/system/chess.rileygavigan.com.service <<EOL
 [Unit]
 Description=Hosted Chess Application for chess.rileygavigan.com
 After=nginx.service
@@ -71,7 +78,7 @@ WorkingDirectory=/home/ec2-user/chess
 WantedBy=multi-user.target
 EOL
 
-# Start the application
-sudo systemctl daemon-reload
-sudo systemctl start chess.rileygavigan.com
-sudo systemctl enable chess.rileygavigan.com
+echo "Start the application"
+systemctl daemon-reload
+systemctl start chess.rileygavigan.com
+systemctl enable chess.rileygavigan.com

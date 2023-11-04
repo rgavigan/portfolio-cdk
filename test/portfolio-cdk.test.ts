@@ -57,14 +57,7 @@ test('EC2 instance is created', () => {
       {
         DeviceName: '/dev/xvda',
         Ebs: {
-          VolumeSize: 8,
-          Encrypted: true
-        }
-      },
-      {
-        DeviceName: '/dev/sdb',
-        Ebs: {
-          VolumeSize: 22,
+          VolumeSize: 30,
           Encrypted: true
         }
       }
@@ -93,14 +86,7 @@ test('EC2 instance is created', () => {
       {
         DeviceName: '/dev/xvda',
         Ebs: {
-          VolumeSize: 8,
-          Encrypted: true
-        }
-      },
-      {
-        DeviceName: '/dev/sdb',
-        Ebs: {
-          VolumeSize: 22,
+          VolumeSize: 30,
           Encrypted: true
         }
       }
