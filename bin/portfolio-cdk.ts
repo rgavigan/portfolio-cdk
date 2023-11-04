@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { PortfolioCdkStack } from '../lib/portfolio-cdk-stack';
+import { Ec2Stack } from '../lib/ec2-stack';
+import { SageMakerStack } from '../lib/sagemaker-stack';
+import { awsAccount } from '../constants';
 
-const envUS = { account: '939499127636', region: 'us-east-1' };
-
+// App Creation
 const app = new cdk.App();
-new PortfolioCdkStack(app, 'PortfolioCdkStack', { env: envUS });
+
+// EC2 Stack Creation
+new Ec2Stack(app, 'PortfolioCdkStack', { env: awsAccount });
+
+// SageMaker Stack Creation
+new SageMakerStack(app, 'SageMakerStack', { env: awsAccount });

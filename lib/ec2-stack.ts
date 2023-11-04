@@ -1,8 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
+import { userData } from '../constants';
 
-export class PortfolioCdkStack extends cdk.Stack {
+export class Ec2Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -14,7 +15,7 @@ export class PortfolioCdkStack extends cdk.Stack {
     });
 
     /**
-     * EC2 Security Group - SSH, All HTTP/HTTPS
+     * EC2 Security Group - SSH, HTTP, and HTTPS
      */
     const securityGroup = new ec2.SecurityGroup(this, 'VpcSecurityGroup', {
       vpc: vpc,
@@ -27,7 +28,7 @@ export class PortfolioCdkStack extends cdk.Stack {
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS access from anywhere');
 
     /** 
-     * EC2 Instance - Free Tier
+     * EC2 Instance - Free Tier (https://aws.amazon.com/free)
      * Type: t2.micro
      * Storage: 30GiB EBS
      * IOs: 2 million
@@ -59,6 +60,8 @@ export class PortfolioCdkStack extends cdk.Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
+      // User data script to install all dependencies and run Chess application and web server
+      userData: ec2.UserData.custom(userData),
     });
   }
 }
