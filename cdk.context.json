@@ -7,5 +7,61 @@
     "us-east-1e",
     "us-east-1f"
   ],
-  "ssm:account=939499127636:parameterName=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64:region=us-east-1": "ami-01bc990364452ab3e"
+  "ssm:account=939499127636:parameterName=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64:region=us-east-1": "ami-01bc990364452ab3e",
+  "vpc-provider:account=939499127636:filter.tag:Name=Portfolio Machine VPC:region=us-east-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-04503059e1e312ffb",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "ownerAccountId": "939499127636",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Private",
+        "type": "Private",
+        "subnets": [
+          {
+            "subnetId": "subnet-080f9149fce9e4e41",
+            "cidr": "10.0.96.0/19",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-05653853c15a593a5"
+          },
+          {
+            "subnetId": "subnet-0e279bcd671bf1751",
+            "cidr": "10.0.128.0/19",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-0ae19b74dac088d9f"
+          },
+          {
+            "subnetId": "subnet-0b3a3841cd01eb033",
+            "cidr": "10.0.160.0/19",
+            "availabilityZone": "us-east-1c",
+            "routeTableId": "rtb-0606bed374c1ef016"
+          }
+        ]
+      },
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0fe036be5de2c735c",
+            "cidr": "10.0.0.0/19",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-038a9fa1531db4b62"
+          },
+          {
+            "subnetId": "subnet-0a18a9e3a9b834cbf",
+            "cidr": "10.0.32.0/19",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-05e05634b1efd1a46"
+          },
+          {
+            "subnetId": "subnet-0c58716deb70feefd",
+            "cidr": "10.0.64.0/19",
+            "availabilityZone": "us-east-1c",
+            "routeTableId": "rtb-0dc6b492c1db67bbb"
+          }
+        ]
+      }
+    ]
+  }
 }

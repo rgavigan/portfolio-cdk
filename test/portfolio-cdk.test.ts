@@ -107,7 +107,7 @@ test('EC2 instance is created', () => {
   }));
 });
 
-test('SageMaker Notebook is Created', () => {
+test('SageMaker Domain is Created', () => {
   const app = new App();
   
   // Create SageMakerStack
@@ -118,12 +118,22 @@ test('SageMaker Notebook is Created', () => {
   // Prepare stack for assertions
   const template = Template.fromStack(stack);
 
-  // Assert that a SageMaker Notebook instance is created
-  template.resourceCountIs(ResourceType.SAGEMAKER_NOTEBOOK_INSTANCE.complianceResourceType, 1)
+  // Assert that the Sagemaker Domain is created with the correct properties
+  template.hasResourceProperties('AWS::SageMaker::Domain', {
+    DomainName: 'mySageMakerDomain',
+    AuthMode: 'IAM',
+    VpcId: 'vpc-12345',
+    SubnetIds: [
+      's-12345',
+      's-67890',
+    ],
+  });
 
-  // Assert that the SageMaker Notebook instance is created with the correct properties
-  template.hasResourceProperties(ResourceType.SAGEMAKER_NOTEBOOK_INSTANCE.complianceResourceType, {
-    InstanceType: 'ml.t2.medium',
-    DefaultCodeRepository: 'https://github.com/rgavigan/e-score.git',
+  // Assert that the User Profile is created with the correct properties
+  template.hasResourceProperties('AWS::SageMaker::UserProfile', {
+    DomainId: {
+      Ref: 'sagemakerDomain',
+    },
+    UserProfileName: 'Riley',
   });
 });

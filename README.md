@@ -3,8 +3,7 @@
 ### Resources
 * EC2 Instance
     * Runs my Chess Application
-* SageMaker Notebook
-    * Runs my e-score repository for analysis
+* SageMaker Studio
 
 ### Building and Deploying
 ```sh

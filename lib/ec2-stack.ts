@@ -4,13 +4,16 @@ import { Construct } from 'constructs';
 import { userData } from '../constants';
 
 export class Ec2Stack extends cdk.Stack {
+  // Export  VPC instance
+  public vpc: ec2.Vpc;
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     /**
      * VPC Instance
      */
-    const vpc = new ec2.Vpc(this, 'PortfolioVpc', {
+    this.vpc = new ec2.Vpc(this, 'PortfolioVpc', {
       vpcName: 'Portfolio Machine VPC',
     });
 
@@ -18,7 +21,7 @@ export class Ec2Stack extends cdk.Stack {
      * EC2 Security Group - SSH, HTTP, and HTTPS
      */
     const securityGroup = new ec2.SecurityGroup(this, 'VpcSecurityGroup', {
-      vpc: vpc,
+      vpc: this.vpc,
       allowAllOutbound: true,
       description: 'Allow all inbound HTTP/HTTPS traffic',
       securityGroupName: 'Portfolio Machine Security Group',
@@ -36,7 +39,7 @@ export class Ec2Stack extends cdk.Stack {
      * Internet Bandwidth: 100GB
      */
     new ec2.Instance(this, 'Portfolio Machine', {
-      vpc: vpc,
+      vpc: this.vpc,
       instanceType: new ec2.InstanceType('t2.micro'),
       machineImage: new ec2.AmazonLinux2023ImageSsmParameter(),
       blockDevices: [
