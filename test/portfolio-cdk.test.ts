@@ -127,6 +127,13 @@ test('SageMaker Domain is Created', () => {
       's-12345',
       's-67890',
     ],
+    DefaultSpaceSettings: {
+      KernelGatewayAppSettings: {
+        DefaultResourceSpec: {
+          InstanceType: 'ml.g4dn.2xlarge',
+        },
+      },
+    }
   });
 
   // Assert that the User Profile is created with the correct properties
@@ -135,5 +142,10 @@ test('SageMaker Domain is Created', () => {
       Ref: 'sagemakerDomain',
     },
     UserProfileName: 'Riley',
+  });
+
+  // Assert that the Lifecycle Config is created with the correct properties
+  template.hasResourceProperties('AWS::SageMaker::NotebookInstanceLifecycleConfig', {
+    NotebookInstanceLifecycleConfigName: 'eScoreLifecycleConfig',
   });
 });

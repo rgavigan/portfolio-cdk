@@ -4,6 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 import { Construct } from 'constructs';
+import { awsAccount, eScoreShellScript } from '../constants';
 
 export class SageMakerStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -30,23 +31,15 @@ export class SageMakerStack extends cdk.Stack {
     });
 
     /**
-     * DISABLED - Working with Studio Instead (Keeping For Reference)
-     * SageMaker Notebook Instance for E-Score Notebook
-     * Type: ml.t2.medium
-     * Storage: 10GB
-     * Internet Access: Enabled
-     * Root Access: Enabled
-     * Default Code Repository: e-score GitHub repository
+     * Lifestyle Config for E-Score SageMaker Notebook Instance
      */
-    // const eScoreNotebook = new sagemaker.CfnNotebookInstance(this, 'eScoreNotebook', {
-    //   instanceType: 'ml.t2.medium',
-    //   roleArn: sagemakerRole.roleArn,
-    //   defaultCodeRepository: 'https://github.com/rgavigan/e-score.git',
-    //   notebookInstanceName: 'eScoreNotebook',
-    //   rootAccess: 'Enabled',
-    //   volumeSizeInGb: 10,
-    //   directInternetAccess: 'Enabled',
-    // });
+    const eScoreLifecycleConfig = new sagemaker.CfnNotebookInstanceLifecycleConfig(this, 'eScoreLifecycleConfig', {
+      notebookInstanceLifecycleConfigName: 'eScoreLifecycleConfig',
+      // Run e-score shell script on notebook instance creation
+      onCreate: [{
+        content: Buffer.from(eScoreShellScript).toString('base64'),
+      }]
+    });
 
     /**
      * SageMaker Domain for ML Environments
@@ -62,6 +55,14 @@ export class SageMakerStack extends cdk.Stack {
         vpc.publicSubnets[1].subnetId,
       ],
       vpcId: vpc.vpcId,
+      defaultSpaceSettings: {
+        executionRole: sagemakerRole.roleArn,
+        kernelGatewayAppSettings: {
+          defaultResourceSpec: {
+            instanceType: 'ml.g4dn.2xlarge'
+          },
+        },
+      }
     });
 
     /**

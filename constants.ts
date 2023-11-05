@@ -8,3 +8,5 @@ export const awsAccount = {
 
 // User Data file to be used for EC2 instance
 export const userData = fs.readFileSync(path.join(__dirname, './scripts/chess-server.sh'), 'utf8');
+
+export const eScoreShellScript = fs.readFileSync(path.join(__dirname, './scripts/e-score.sh'), 'utf8');
