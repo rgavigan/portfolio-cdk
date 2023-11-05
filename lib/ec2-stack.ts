@@ -15,6 +15,11 @@ export class Ec2Stack extends cdk.Stack {
      */
     this.vpc = new ec2.Vpc(this, 'PortfolioVpc', {
       vpcName: 'Portfolio Machine VPC',
+      // Do Not Create NAT Gateways
+      natGateways: 0,
+
+      // Create Internet Gateway
+      createInternetGateway: true,
     });
 
     /**
@@ -54,6 +59,7 @@ export class Ec2Stack extends cdk.Stack {
       securityGroup: securityGroup,
       instanceName: 'Portfolio Machine',
       associatePublicIpAddress: true,
+      // Place in Public Subnets
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
