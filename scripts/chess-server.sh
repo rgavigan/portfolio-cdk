@@ -38,6 +38,21 @@ git clone https://github.com/rgavigan/chess.git /home/ec2-user/chess
 echo "Build the application"
 make -C /home/ec2-user/chess
 
+# Install Certbot
+echo "Install Certbot"
+sudo dnf install -y augeas-libs
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip
+sudo /opt/certbot/bin/pip install certbot certbot-nginx
+
+# Create SSL Certificate With Certbot
+sudo /opt/certbot/bin/certbot --nginx -d chess.rileygavigan.com <<EOF
+rileygav@hotmail.com
+Y
+N
+1
+EOF
+
 # Creates Nginx Config File
 echo "Create an Nginx configuration file"
 cat > /etc/nginx/conf.d/chess.conf <<EOL
@@ -66,21 +81,6 @@ server {
     return 404;
 }
 EOL
-
-# Install Certbot
-echo "Install Certbot"
-sudo dnf install -y augeas-libs
-sudo python3 -m venv /opt/certbot/
-sudo /opt/certbot/bin/pip install --upgrade pip
-sudo /opt/certbot/bin/pip install certbot certbot-nginx
-
-# Create SSL Certificate With Certbot
-sudo /opt/certbot/bin/certbot --nginx <<EOF
-rileygav@hotmail.com
-Y
-N
-1
-EOF
 
 # Creates Systemd Service File
 echo "Create a systemd service file"

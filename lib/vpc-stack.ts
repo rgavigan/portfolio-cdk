@@ -32,14 +32,14 @@ export class VpcStack extends Stack {
      * Allow all outbound traffic
      * Allow SSH access from anywhere
      */
-    const securityGroup = new SecurityGroup(this, 'VpcSecurityGroup', {
+    this.securityGroup = new SecurityGroup(this, 'VpcSecurityGroup', {
       vpc: this.vpc,
       allowAllOutbound: true,
       description: 'Allow all inbound HTTP/HTTPS traffic',
       securityGroupName: 'Portfolio Machine Security Group',
     });    
-    securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(22), 'Allow SSH access from anywhere');
-    securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(80), 'Allow HTTP access from anywhere');
-    securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'Allow HTTPS access from anywhere');
+    this.securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(22), 'Allow SSH access from anywhere');
+    this.securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(80), 'Allow HTTP access from anywhere');
+    this.securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'Allow HTTPS access from anywhere');
   }
 }
