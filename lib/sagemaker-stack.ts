@@ -1,39 +1,39 @@
-import * as cdk from 'aws-cdk-lib';
-import * as sagemaker from 'aws-cdk-lib/aws-sagemaker';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-
+import { Stack, StackProps } from 'aws-cdk-lib';
+import {
+  CfnNotebookInstanceLifecycleConfig,
+  CfnDomain,
+  CfnUserProfile,
+} from 'aws-cdk-lib/aws-sagemaker';
+import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-import { awsAccount, eScoreShellScript } from '../constants';
+import { eScoreShellScript } from '../constants';
 
-export class SageMakerStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+interface SageMakerStackProps extends StackProps {
+  vpc: Vpc;
+}
+
+export class SageMakerStack extends Stack {
+  constructor(scope: Construct, id: string, props: SageMakerStackProps) {
     super(scope, id, props);
-
-    /**
-     * Get VPC from Ec2Stack
-     */
-    const vpc = ec2.Vpc.fromLookup(this, 'VPC', {
-      vpcName: 'Portfolio Machine VPC',
-    });
 
     /**
      * IAM Role for SageMaker Notebook Instance
      */
-    const sagemakerRole = new iam.Role(this, 'SageMakerRole', {
-      assumedBy: new iam.ServicePrincipal('sagemaker.amazonaws.com'),
+    const sagemakerRole = new Role(this, 'SageMakerRole', {
+      assumedBy: new ServicePrincipal('sagemaker.amazonaws.com'),
       roleName: 'SageMakerRole',
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSageMakerFullAccess'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryFullAccess'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonSageMakerFullAccess'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryFullAccess'),
       ],
     });
 
     /**
      * Lifestyle Config for E-Score SageMaker Notebook Instance
      */
-    const eScoreLifecycleConfig = new sagemaker.CfnNotebookInstanceLifecycleConfig(this, 'eScoreLifecycleConfig', {
+    const eScoreLifecycleConfig = new CfnNotebookInstanceLifecycleConfig(this, 'eScoreLifecycleConfig', {
       notebookInstanceLifecycleConfigName: 'eScoreLifecycleConfig',
       // Run e-score shell script on notebook instance creation
       onCreate: [{
@@ -44,17 +44,16 @@ export class SageMakerStack extends cdk.Stack {
     /**
      * SageMaker Domain for ML Environments
      */
-    const sagemakerDomain = new sagemaker.CfnDomain(this, 'sagemakerDomain', {
+    const sagemakerDomain = new CfnDomain(this, 'sagemakerDomain', {
       authMode: 'IAM',
       domainName: 'mySageMakerDomain',
       defaultUserSettings: {
         executionRole: sagemakerRole.roleArn,
       },
       subnetIds: [
-        vpc.publicSubnets[0].subnetId,
-        vpc.publicSubnets[1].subnetId,
+        props.vpc.publicSubnets[0].subnetId,
       ],
-      vpcId: vpc.vpcId,
+      vpcId: props.vpc.vpcId,
       defaultSpaceSettings: {
         executionRole: sagemakerRole.roleArn,
         kernelGatewayAppSettings: {
@@ -68,7 +67,7 @@ export class SageMakerStack extends cdk.Stack {
     /**
      * User Profile for SageMaker Domain
      */
-    const sagemakerUserProfile = new sagemaker.CfnUserProfile(this, 'sagemakerUserProfile', {
+    const sagemakerUserProfile = new CfnUserProfile(this, 'sagemakerUserProfile', {
       domainId: sagemakerDomain.ref,
       userSettings: {
         executionRole: sagemakerRole.roleArn,

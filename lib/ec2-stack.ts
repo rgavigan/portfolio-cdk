@@ -1,70 +1,58 @@
-import * as cdk from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { 
+  Instance, 
+  InstanceType, 
+  AmazonLinux2023ImageSsmParameter,
+  BlockDeviceVolume,
+  UserData,
+  SubnetType,
+  Vpc,
+  SecurityGroup
+} from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { userData } from '../constants';
 
-export class Ec2Stack extends cdk.Stack {
-  // Export  VPC instance
-  public vpc: ec2.Vpc;
+// Create EC2 Props
+interface Ec2StackProps extends StackProps {
+  vpc: Vpc;
+  securityGroup: SecurityGroup;
+}
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class Ec2Stack extends Stack {
+  constructor(scope: Construct, id: string, props: Ec2StackProps) {
     super(scope, id, props);
 
-    /**
-     * VPC Instance
-     */
-    this.vpc = new ec2.Vpc(this, 'PortfolioVpc', {
-      vpcName: 'Portfolio Machine VPC',
-      // Do Not Create NAT Gateways
-      natGateways: 0,
-
-      // Create Internet Gateway
-      createInternetGateway: true,
-    });
-
-    /**
-     * EC2 Security Group - SSH, HTTP, and HTTPS
-     */
-    const securityGroup = new ec2.SecurityGroup(this, 'VpcSecurityGroup', {
-      vpc: this.vpc,
-      allowAllOutbound: true,
-      description: 'Allow all inbound HTTP/HTTPS traffic',
-      securityGroupName: 'Portfolio Machine Security Group',
-    });    
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'Allow SSH access from anywhere');
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP access from anywhere');
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS access from anywhere');
-
     /** 
-     * EC2 Instance
-     * Type: t3.2xlarge (For initial boot, downgrade t3.micro after boot manually)
+     * EC2 Instance Creation
+     * 
+     * Type: t3.2xlarge (Initially - downgrade to t3.micro after user data script runs)
      * Storage: 30GiB EBS
      * IOs: 2 million
      * Snapshots: 1GB
      * Internet Bandwidth: 100GB
      */
-    new ec2.Instance(this, 'Portfolio Machine', {
-      vpc: this.vpc,
-      instanceType: new ec2.InstanceType('t3.2xlarge'),
-      machineImage: new ec2.AmazonLinux2023ImageSsmParameter(),
+    new Instance(this, 'Portfolio Machine', {
+      vpc: props.vpc,
+      instanceType: new InstanceType('t3.2xlarge'),
+      machineImage: new AmazonLinux2023ImageSsmParameter(),
       blockDevices: [
         {
           deviceName: '/dev/xvda', // Root disk
-          volume: ec2.BlockDeviceVolume.ebs(30, {
+          volume: BlockDeviceVolume.ebs(30, {
             encrypted: true,
           }),
         },
       ],
       keyName: 'portfolio_machine',
-      securityGroup: securityGroup,
+      securityGroup: props.securityGroup,
       instanceName: 'Portfolio Machine',
       associatePublicIpAddress: true,
       // Place in Public Subnets
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PUBLIC,
+        subnetType: SubnetType.PUBLIC,
       },
       // User data script to install all dependencies and run Chess application and web server
-      userData: ec2.UserData.custom(userData),
+      userData: UserData.custom(userData),
     });
   }
 }

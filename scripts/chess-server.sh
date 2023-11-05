@@ -17,7 +17,7 @@ cmake ..
 
 # Makes Wt
 echo "Make Wt"
-make
+make -j4
 
 # Installs Wt
 echo "Install Wt"
