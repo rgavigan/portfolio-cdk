@@ -1,21 +1,22 @@
-import * as cdk from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import { Stack, RemovalPolicy, StackProps } from 'aws-cdk-lib';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Table, AttributeType } from 'aws-cdk-lib/aws-dynamodb';
+import { User, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
-export class VictoryBulldogsStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class VictoryBulldogsStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     /**
      * S3 Bucket to store Victory Bulldogs images
      */
-    const victoryBulldogsBucket = new s3.Bucket(this, 'VictoryBulldogsBucket', {
+    const victoryBulldogsBucket = new Bucket(this, 'VictoryBulldogsBucket', {
         bucketName: 'victorybulldogs',
 
         // Images should be publicly visible from website
         publicReadAccess: true,
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        removalPolicy: RemovalPolicy.DESTROY,
 
         blockPublicAccess: {
           blockPublicAcls: false,
@@ -36,13 +37,24 @@ export class VictoryBulldogsStack extends cdk.Stack {
      * - description: string
      * - images: string[] (array of image URLs)
      */
-    const victoryBulldogsTable = new dynamodb.Table(this, 'VictoryBulldogsTable', {
+    const victoryBulldogsTable = new Table(this, 'VictoryBulldogsTable', {
         tableName: 'victorybulldogs',
         partitionKey: {
             name: 'id',
-            type: dynamodb.AttributeType.STRING,
+            type: AttributeType.STRING,
         },
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    /**
+     * Victory Bulldogs IAM User for Website to access S3 Bucket and DynamoDB Table
+     */
+    const victoryBulldogsUser = new User(this, 'VictoryBulldogsUser', {
+        userName: 'victorybulldogs',
+        managedPolicies: [
+            ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
+            ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess'),
+        ]
     });
   }
 }

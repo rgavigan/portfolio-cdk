@@ -26,37 +26,57 @@ test('Victory Bulldogs S3 Bucket is created properly', () => {
 });
 
 test('Victory Bulldogs DynamoDB Table is created properly', () => {
-    const app = new App();
-    
-    // Create VictoryBulldogsStack
-    const stack = new VictoryBulldogsStack(app, 'TestVictoryBulldogs', {
-      env: awsAccount,
-    });
+  const app = new App();
   
-    // Prepare stack for assertions
-    const template = Template.fromStack(stack);
-  
-    // Assert that DynamoDB Table is created
-    template.resourceCountIs(ResourceType.DYNAMODB_TABLE.complianceResourceType, 1)
-
-    // Assert that DynamoDB Table has the correct properties
-    template.hasResourceProperties(ResourceType.DYNAMODB_TABLE.complianceResourceType, {
-        TableName: 'victorybulldogs',
-        KeySchema: [
-            {
-              AttributeName: 'id',
-              KeyType: 'HASH'
-            }
-        ],
-        AttributeDefinitions: [
-            {
-              AttributeName: 'id',
-              AttributeType: 'S'
-            }
-        ],
-        ProvisionedThroughput: {
-            ReadCapacityUnits: 5,
-            WriteCapacityUnits: 5
-        }
-    });
+  // Create VictoryBulldogsStack
+  const stack = new VictoryBulldogsStack(app, 'TestVictoryBulldogs', {
+    env: awsAccount,
   });
+
+  // Prepare stack for assertions
+  const template = Template.fromStack(stack);
+
+  // Assert that DynamoDB Table is created
+  template.resourceCountIs(ResourceType.DYNAMODB_TABLE.complianceResourceType, 1)
+
+  // Assert that DynamoDB Table has the correct properties
+  template.hasResourceProperties(ResourceType.DYNAMODB_TABLE.complianceResourceType, {
+      TableName: 'victorybulldogs',
+      KeySchema: [
+          {
+            AttributeName: 'id',
+            KeyType: 'HASH'
+          }
+      ],
+      AttributeDefinitions: [
+          {
+            AttributeName: 'id',
+            AttributeType: 'S'
+          }
+      ],
+      ProvisionedThroughput: {
+          ReadCapacityUnits: 5,
+          WriteCapacityUnits: 5
+      }
+  });
+});
+
+test('Victory Bulldogs IAM User is created properly', () => {
+  const app = new App();
+  
+  // Create VictoryBulldogsStack
+  const stack = new VictoryBulldogsStack(app, 'TestVictoryBulldogs', {
+    env: awsAccount,
+  });
+
+  // Prepare stack for assertions
+  const template = Template.fromStack(stack);
+
+  // Assert that IAM User is created
+  template.resourceCountIs(ResourceType.IAM_USER.complianceResourceType, 1)
+
+  // Assert that IAM User has the correct properties
+  template.hasResourceProperties(ResourceType.IAM_USER.complianceResourceType, {
+      UserName: 'victorybulldogs',
+  });
+});
